@@ -14,9 +14,9 @@ void drawTile()
 {
     gl_FragColor = texture(tex, vec2(texCoord.x, 1.0f - texCoord.y));
     if(!selection) {
-        gl_FragColor *= 0.75f;
+        gl_FragColor *= 0.90f;
     } else {
-        gl_FragColor *= 1.1f;
+        gl_FragColor *= 1.3f;
     }
 }
 
