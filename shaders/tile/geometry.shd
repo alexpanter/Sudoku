@@ -1,0 +1,39 @@
+#version 330 core
+layout (points) in;
+layout (triangle_strip, max_vertices = 6) out;
+
+uniform float width;
+uniform float height;
+out vec2 texCoord;
+
+void main()
+{
+    vec4 pos = gl_in[0].gl_Position;
+    // (2,_)-----(3,2)
+    //   |        /|
+    //   |       / |
+    //   |      /  |
+    //   |     /   |
+    //   |    /    |
+    //   |   /     |
+    //   |  /      |
+    // (1,1)-----(_,3)
+
+    // upper-left triangle
+    gl_Position = vec4(pos.x, pos.y-height, pos.zw); texCoord = vec2(0.0f, 0.0f);
+    EmitVertex();
+    gl_Position = pos; texCoord = vec2(0.0f, 1.0f);
+    EmitVertex();
+    gl_Position = vec4(pos.x+width, pos.yzw); texCoord = vec2(1.0f, 1.0f);
+    EmitVertex();
+    EndPrimitive();
+
+    // bottom-right triangle
+    gl_Position = vec4(pos.x, pos.y-height, pos.zw); texCoord = vec2(0.0f, 0.0f);
+    EmitVertex();
+    gl_Position = vec4(pos.x+width, pos.yzw); texCoord = vec2(1.0f, 1.0f);
+    EmitVertex();
+    gl_Position = vec4(pos.x+width, pos.y-height, pos.zw); texCoord = vec2(1.0f, 0.0f);
+    EmitVertex();
+    EndPrimitive();
+}

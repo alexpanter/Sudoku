@@ -1,0 +1,15 @@
+#version 330 core
+
+uniform sampler2D tex;
+uniform bool selection;
+in vec2 texCoord;
+
+void main()
+{
+    gl_FragColor = texture(tex, vec2(texCoord.x, 1.0f - texCoord.y));
+    if(!selection) {
+        gl_FragColor *= 0.75f;
+    } else {
+        gl_FragColor *= 1.1f;
+    }
+}
