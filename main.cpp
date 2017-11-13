@@ -109,7 +109,9 @@ public:
             _board[_selection].val = 9;
             break;
 
+        case GLFW_KEY_BACKSPACE:
         case GLFW_KEY_DELETE:
+        case GLFW_KEY_D:
             _board[_selection].cnt = 9;
             _board[_selection].val = 0;
             for(unsigned int i = 0; i < 9; i++) {
@@ -160,6 +162,36 @@ public:
         }
         glBindVertexArray(0);
     }
+    void InsertGameBoard(unsigned int* board)
+    {
+        for(unsigned int i = 0; i < 81; i++)
+        {
+            // insert empty field
+            if(board[i] == 0) {
+                _board[i].cnt = 9;
+                _board[i].val = 0;
+            }
+            // insert a number
+            else {
+                _board[i].cnt = 1;
+                _board[i].val = board[i];
+            }
+        }
+    }
+};
+
+unsigned int game_board[81] = {
+    7,0,0, 5,6,1, 0,0,8,
+    5,2,0, 0,0,0, 0,0,0,
+    0,0,8, 0,0,2, 5,7,0,
+
+    0,1,5, 0,2,3, 0,8,0,
+    2,0,0, 0,5,0, 0,0,4,
+    0,7,0, 1,9,0, 3,5,2,
+
+    6,5,4, 2,0,9, 8,0,0,
+    0,0,0, 0,0,0, 0,6,5,
+    0,0,0, 6,8,5, 0,0,9
 };
 
 Windows::WindowedWindow* win;
@@ -197,6 +229,7 @@ int main()
 
     // SUDOKU
     sud = new Sudoku();
+    sud->InsertGameBoard(game_board);
 
     // GAME LOOP
     while(!win->ShouldClose())
