@@ -73,38 +73,47 @@ public:
     {
         switch(key) {
         case GLFW_KEY_1:
+        case GLFW_KEY_KP_1:
             _board[_selection].cnt = 1;
             _board[_selection].val = 1;
             break;
         case GLFW_KEY_2:
+        case GLFW_KEY_KP_2:
             _board[_selection].cnt = 1;
             _board[_selection].val = 2;
             break;
         case GLFW_KEY_3:
+        case GLFW_KEY_KP_3:
             _board[_selection].cnt = 1;
             _board[_selection].val = 3;
             break;
         case GLFW_KEY_4:
+        case GLFW_KEY_KP_4:
             _board[_selection].cnt = 1;
             _board[_selection].val = 4;
             break;
         case GLFW_KEY_5:
+        case GLFW_KEY_KP_5:
             _board[_selection].cnt = 1;
             _board[_selection].val = 5;
             break;
         case GLFW_KEY_6:
+        case GLFW_KEY_KP_6:
             _board[_selection].cnt = 1;
             _board[_selection].val = 6;
             break;
         case GLFW_KEY_7:
+        case GLFW_KEY_KP_7:
             _board[_selection].cnt = 1;
             _board[_selection].val = 7;
             break;
         case GLFW_KEY_8:
+        case GLFW_KEY_KP_8:
             _board[_selection].cnt = 1;
             _board[_selection].val = 8;
             break;
         case GLFW_KEY_9:
+        case GLFW_KEY_KP_9:
             _board[_selection].cnt = 1;
             _board[_selection].val = 9;
             break;
