@@ -142,10 +142,11 @@ public:
         for(unsigned int i = 0; i < 81; i++)
         {
             shd->SetUniform("position", glm::vec2(2.0f / 9.0f * (float)(i % 9) - 1.0f,
-                                                    -2.0f / 9.0f * (float)(i / 9) + 1.0f));
+                                                  -2.0f / 9.0f * (float)(i / 9) + 1.0f));
             shd->SetUniform("width", TILE_WIDTH);
             shd->SetUniform("height", TILE_HEIGHT);
             shd->SetUniform("selection", (i == _selection));
+            shd->SetUniform("windowSize", WINDOW_SIZE);
 
             // several possibilities for a field
             if(_board[i].cnt > 1) {
@@ -206,7 +207,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int main()
 {
     // WINDOW
-    win = new Windows::WindowedWindow("Sudoku", 630, Windows::ASPECT_RATIO_1_1);
+    win = new Windows::WindowedWindow("Sudoku", WINDOW_SIZE, Windows::ASPECT_RATIO_1_1);
     win->SetKeyCallback(key_callback);
     glfwSetInputMode(win->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 

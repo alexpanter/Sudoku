@@ -2,14 +2,40 @@
 
 uniform sampler2D tex;
 uniform bool selection;
+uniform int windowSize;
 in vec2 texCoord;
 
-void main()
+void drawBorder()
+{
+    // default black border color between 3x3 sudoku regions
+    gl_FragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+void drawTile()
 {
     gl_FragColor = texture(tex, vec2(texCoord.x, 1.0f - texCoord.y));
     if(!selection) {
         gl_FragColor *= 0.75f;
     } else {
         gl_FragColor *= 1.1f;
+    }
+}
+
+void main()
+{
+    // get viewport coordinates, assuming lower-left origin for
+    // window coordinates
+    float x = gl_FragCoord.x;
+    float y = gl_FragCoord.y;
+
+    // TODO: would be much more efficient to do this in the application instead
+    // of manually checking for every shading call!
+    if(x >= windowSize / 3.0f - 5.0f && x < windowSize / 3.0f + 5.0f ||
+       x >= windowSize * 2.0f/3.0f - 5.0f && x < windowSize * 2.0f/3.0f + 5.0f ||
+       y >= windowSize / 3.0f - 5.0f && y < windowSize / 3.0f + 5.0f ||
+       y >= windowSize * 2.0f/3.0f - 5.0f && y < windowSize * 2.0f/3.0f + 5.0f) {
+        drawBorder();
+    }
+    else {
+        drawTile();
     }
 }
