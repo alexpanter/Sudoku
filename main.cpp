@@ -40,6 +40,7 @@ private:
     typedef struct {
         unsigned int cnt;
         bool vals[9];
+        unsigned int val;
     } _field_t;
 
     _field_t* _board;
@@ -53,6 +54,7 @@ public:
         for(unsigned int i = 0; i < 81; i++)
         {
             _board[i].cnt = 9;
+            _board[i].val = 0;
             for(unsigned int j = 0; j < 9; j++)
             {
                 _board[i].vals[j] = true;
@@ -71,15 +73,50 @@ public:
     {
         switch(key) {
         case GLFW_KEY_1:
-        case GLFW_KEY_2:
-        case GLFW_KEY_3:
-        case GLFW_KEY_4:
-        case GLFW_KEY_5:
-        case GLFW_KEY_6:
-        case GLFW_KEY_7:
-        case GLFW_KEY_8:
-        case GLFW_KEY_9:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 1;
             break;
+        case GLFW_KEY_2:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 2;
+            break;
+        case GLFW_KEY_3:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 3;
+            break;
+        case GLFW_KEY_4:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 4;
+            break;
+        case GLFW_KEY_5:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 5;
+            break;
+        case GLFW_KEY_6:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 6;
+            break;
+        case GLFW_KEY_7:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 7;
+            break;
+        case GLFW_KEY_8:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 8;
+            break;
+        case GLFW_KEY_9:
+            _board[_selection].cnt = 1;
+            _board[_selection].val = 9;
+            break;
+
+        case GLFW_KEY_DELETE:
+            _board[_selection].cnt = 9;
+            _board[_selection].val = 0;
+            for(unsigned int i = 0; i < 9; i++) {
+                _board[_selection].vals[i] = true;
+            }
+            break;
+
         case GLFW_KEY_UP:
             _selection -= (_selection >= 9) ? 9 : 0;
             break;
@@ -108,7 +145,15 @@ public:
             shd->SetUniform("height", TILE_HEIGHT);
             shd->SetUniform("selection", (i == _selection));
 
-            tex[1]->Bind();
+            // several possibilities for a field
+            if(_board[i].cnt > 1) {
+                tex[0]->Bind();
+            }
+            // only one possibility for a field
+            else if(_board[i].cnt == 1) {
+                tex[_board[i].val]->Bind();
+            }
+
             shd->SetUniformTexture("tex", GL_TEXTURE0);
 
             glDrawArrays(GL_POINTS, 0, 1);
