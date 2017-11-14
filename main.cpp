@@ -45,6 +45,97 @@ private:
 
     _field_t* _board;
     unsigned int _selection;
+
+    unsigned int getFieldVal(unsigned int i)
+    {
+        if(_board[i].cnt > 1) { return 0;}
+
+        for(unsigned int j = 0; j < 9; j++)
+        {
+            if(_board[i].vals[j] == true) {
+                return j+1;
+            }
+        }
+        return 0;
+    }
+    bool trivialCheckFieldHelp(unsigned int i)
+    {
+        unsigned int row = i / 9;
+        unsigned int col = i % 9;
+
+        // check the row
+        for(unsigned int j = 0; j < 9; j++)
+        {
+            if(j == col) continue;
+
+            unsigned int idx = row*9 + j;
+            if(_board[idx].cnt == 1 && _board[i].vals[_board[idx].val - 1] == true) {
+                _board[i].vals[_board[idx].val - 1] = false;
+                _board[i].cnt--;
+            }
+        }
+        if(_board[i].cnt == 1)
+        {
+            _board[i].val = getFieldVal(i);
+            printf("ROW insert val %i in (%i,%i)\n", getFieldVal(i), row, col);
+            return true;
+        }
+
+        // check the column
+        for(unsigned int j = 0; j < 9; j++)
+        {
+            if(j == row) continue;
+
+            unsigned int idx = j*9 + col;
+            if(_board[idx].cnt == 1 && _board[i].vals[_board[idx].val - 1] == true) {
+                _board[i].vals[_board[idx].val - 1] = false;
+                _board[i].cnt--;
+            }
+        }
+        if(_board[i].cnt == 1)
+        {
+            _board[i].val = getFieldVal(i);
+            printf("COL insert val %i in (%i,%i)\n", getFieldVal(i), row, col);
+            return true;
+        }
+
+        // check the region
+        unsigned int reg = ((row / 3) * 3) + (col / 3);
+        unsigned int start = (reg / 3) * 27 + ((col / 3) * 3);
+        for(unsigned int r = 0; r < 3; r++)
+        {
+            for(unsigned int c = 0; c < 3; c++)
+            {
+                unsigned int idx = start + 9*r + c;
+                if(idx == i) continue;
+                if(_board[idx].cnt == 1 && _board[i].vals[_board[idx].val - 1] == true) {
+                    _board[i].vals[_board[idx].val - 1] = false;
+                    _board[i].cnt--;
+                }
+            }
+        }
+        if(_board[i].cnt == 1)
+        {
+            _board[i].val = getFieldVal(i);
+            printf("REG insert val %i in (%i,%i)\n", getFieldVal(i), row, col);
+            return true;
+        }
+
+        return false;
+    }
+
+    void trivialFindHelp()
+    {
+        for(unsigned int i = 0; i < 81; i++)
+        {
+            if(_board[i].cnt > 1 && trivialCheckFieldHelp(i))
+            {
+                _board[i].cnt = 1;
+                return;
+            }
+        }
+        printf("found no field\n");
+    }
 public:
     Sudoku()
     {
@@ -139,6 +230,10 @@ public:
             break;
         case GLFW_KEY_RIGHT:
             _selection += (_selection % 9 < 8) ? 1 : 0;
+            break;
+
+        case GLFW_KEY_H:
+            trivialFindHelp();
             break;
         default:
             break;
