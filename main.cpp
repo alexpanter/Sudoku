@@ -43,8 +43,48 @@ private:
         unsigned int val;
     } _field_t;
 
+    typedef struct {
+        bool vals[9] = {true,true,true, true,true,true, true,true,true};
+    } _fields_t;
+
     _field_t* _board;
     unsigned int _selection;
+
+    _fields_t _rows[9];
+    _fields_t _cols[9];
+    _fields_t _regs[9];
+
+    void updateRowPossibilities()
+    {
+        for(unsigned int i = 0; i < 81; i++)
+        {
+            if(_board[i].cnt == 1) {
+                _rows[i / 9].vals[_board[i].val - 1] = false;
+            }
+        }
+    }
+    void updateColumnPossibilities()
+    {
+        for(unsigned int i = 0; i < 81; i++)
+        {
+            if(_board[i].cnt == 1) {
+                _cols[i % 9].vals[_board[i].val - 1] = false;
+            }
+        }
+    }
+    void updateRegionPossibilities()
+    {
+        for(unsigned int i = 0; i < 81; i++)
+        {
+            unsigned int row = i / 9;
+            unsigned int col = i % 9;
+            unsigned int reg = ((row / 3) * 3) + (col / 3);
+
+            if(_board[i].cnt == 1) {
+                _regs[reg].vals[_board[i].val - 1] = false;
+            }
+        }
+    }
 
     unsigned int getFieldVal(unsigned int i)
     {
@@ -125,37 +165,39 @@ private:
         return false;
     }
 
-    void trivialFindHelp()
+    bool trivialFindHelp()
     {
         for(unsigned int i = 0; i < 81; i++)
         {
             if(_board[i].cnt > 1 && trivialCheckFieldHelp(i))
             {
                 _board[i].cnt = 1;
-                return;
+                return true;
             }
         }
         printf("found no field\n");
+        return false;
     }
 
     void advancedCheckRegion(unsigned int reg)
     {
-        unsigned int start = (reg / 3) * 27 + ((reg % 3) * 3);
-        bool vals[9] = {true,true,true,true,true,true,true,true,true};
+        // unsigned int start = (reg / 3) * 27 + ((reg % 3) * 3);
+        // bool vals[9] = {true,true,true,true,true,true,true,true,true};
 
-        // check for each field in the region if it has a number, is so remove it from list
-        for(unsigned int r = 0; r < 3; r++)
-        {
-            for(unsigned int c = 0; c < 3; c++)
-            {
-                unsigned int idx = start + 9*r + c;
+        // // check for each field in the region if it has a number, is so remove it from list
+        // for(unsigned int r = 0; r < 3; r++)
+        // {
+        //     for(unsigned int c = 0; c < 3; c++)
+        //     {
+        //         unsigned int idx = start + 9*r + c;
 
-                // if field has number, then remove this number from the list
-                if(_board[idx].cnt == 1) {
-                    vals[_board[idx].val - 1] = false;
-                }
-            }
-        }
+        //         // if field has number, then remove this number from the list
+        //         if(_board[idx].cnt == 1) {
+        //             vals[_board[idx].val - 1] = false;
+        //         }
+        //     }
+        // }
+
 
         // check for each number if it fits into the region
         for(unsigned int num = 1; num <= 9; num++)
@@ -172,6 +214,15 @@ private:
         {
             advancedCheckRegion(i);
         }
+    }
+
+    void getHelpInsert()
+    {
+        // simple check by looking in each field's corresponding row, column, and region
+        if(trivialFindHelp()) return;
+
+        // if this fails, then generate meta information
+
     }
 public:
     Sudoku()
@@ -275,6 +326,22 @@ public:
         case GLFW_KEY_J:
             advancedCheckRegions();
             break;
+
+        case GLFW_KEY_A:
+            for(unsigned int i = 0; i < 9; i++) {
+                for(unsigned int j = 0; j < 9; j++) {
+                    printf("%i ", _regs[i].vals[j]);
+                }
+                printf("\n");
+            }
+            updateRegionPossibilities();
+            printf("\n");
+            for(unsigned int i = 0; i < 9; i++) {
+                for(unsigned int j = 0; j < 9; j++) {
+                    printf("%i ", _regs[i].vals[j]);
+                }
+                printf("\n");
+            }
 
         default:
             break;
