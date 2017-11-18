@@ -85,6 +85,33 @@ private:
             }
         }
     }
+    bool checkFieldFitsNumber(unsigned int field, unsigned int number)
+    {
+        // first compare with the row
+        unsigned int row = field / 9;
+        if(_rows[row].vals[number - 1] == false)
+        {
+            return false;
+        }
+
+        // if row check went okay then check the column
+        unsigned int col = field % 9;
+        if(_cols[col].vals[number - 1] == false)
+        {
+            return false;
+        }
+
+        // if neither row nor column disproved then check the region
+        unsigned int reg = ((row / 3) * 3) + (col / 3);
+        if(_regs[reg].vals[number - 1] == false)
+        {
+            return false;
+        }
+
+        // neither row, nor column, nor region disproved, we may conclude
+        // that this index fits the desired number
+        return true;
+    }
 
     unsigned int getFieldVal(unsigned int i)
     {
@@ -167,6 +194,7 @@ private:
 
     bool trivialFindHelp()
     {
+        printf("doing trivial check!\n");
         for(unsigned int i = 0; i < 81; i++)
         {
             if(_board[i].cnt > 1 && trivialCheckFieldHelp(i))
@@ -175,45 +203,62 @@ private:
                 return true;
             }
         }
-        printf("found no field\n");
         return false;
     }
 
-    void advancedCheckRegion(unsigned int reg)
+
+    bool advancedCheckRegions()
     {
-        // unsigned int start = (reg / 3) * 27 + ((reg % 3) * 3);
-        // bool vals[9] = {true,true,true,true,true,true,true,true,true};
-
-        // // check for each field in the region if it has a number, is so remove it from list
-        // for(unsigned int r = 0; r < 3; r++)
-        // {
-        //     for(unsigned int c = 0; c < 3; c++)
-        //     {
-        //         unsigned int idx = start + 9*r + c;
-
-        //         // if field has number, then remove this number from the list
-        //         if(_board[idx].cnt == 1) {
-        //             vals[_board[idx].val - 1] = false;
-        //         }
-        //     }
-        // }
-
-
-        // check for each number if it fits into the region
-        for(unsigned int num = 1; num <= 9; num++)
+        printf("doing advanced regions check!\n");
+        // check for each region
+        for(unsigned reg = 0; reg < 9; reg++)
         {
-            //if(vals[num-1] == false) continue;
+            // check for each number, if it has exactly one possible
+            // place in the region
+            for(unsigned num = 1; num <= 9; num++)
+            {
+                unsigned int cnt = 0;
+                unsigned int idx = 0;
 
+                // skip if the region already contains the number
+                if(_regs[reg].vals[num-1] == false) continue;
 
-            // search for a fitting
+                // region does not contain the number yet, then count in
+                // how many fields the number fits (and save the location)
+                unsigned int start = (reg / 3) * 27 + (reg % 3) * 3;
+                for(unsigned int r = 0; r < 3; r++)
+                {
+                    for(unsigned int c = 0; c < 3; c++)
+                    {
+                        // for each index in the column
+                        unsigned int i = start + r*9 + c;
+
+                        // skip if the location on the game board already has a number
+                        if(_board[i].cnt == 1) continue;
+
+                        // if the number fits here, make a note
+                        if(checkFieldFitsNumber(i, num))
+                        {
+                            cnt++;
+                            idx = i;
+                        }
+                    }
+                }
+
+                // when we are done check the region for places for this number,
+                // count the number of occurrences and insert number, if it
+                // fits in exactly one place
+                if(cnt == 1)
+                {
+                    _board[idx].cnt = 1;
+                    _board[idx].val = num;
+                    printf("ADVANCE REG insert val %i in (%i,%i)\n", num, idx/9, idx%9);
+                    return true;
+                }
+            }
         }
-    }
-    void advancedCheckRegions()
-    {
-        for(unsigned int i = 0; i < 9; i++)
-        {
-            advancedCheckRegion(i);
-        }
+        // no numbers fitted in any region
+        return false;
     }
 
     void getHelpInsert()
@@ -222,7 +267,12 @@ private:
         if(trivialFindHelp()) return;
 
         // if this fails, then generate meta information
+        updateRowPossibilities();
+        updateColumnPossibilities();
+        updateRegionPossibilities();
 
+        // check each region for "singletons"
+        if(advancedCheckRegions()) return;
     }
 public:
     Sudoku()
@@ -321,10 +371,7 @@ public:
             break;
 
         case GLFW_KEY_H:
-            trivialFindHelp();
-            break;
-        case GLFW_KEY_J:
-            advancedCheckRegions();
+            getHelpInsert();
             break;
 
         case GLFW_KEY_A:
@@ -421,7 +468,7 @@ int main()
     // WINDOW
     win = new Windows::WindowedWindow("Sudoku", WINDOW_SIZE, Windows::ASPECT_RATIO_1_1);
     win->SetKeyCallback(key_callback);
-    glfwSetInputMode(win->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(win->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // SHADER
     shd = new Shaders::ShaderWrapper("shaders|tile", Shaders::SHADERS_VGF);
